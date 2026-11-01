@@ -20,12 +20,12 @@
         <span class="dot red"></span>
         <span class="dot amber"></span>
         <span class="dot green"></span>
-        <span class="terminal-title">root@haunted-host:~#</span>
+        <span class="terminal-title">1+0=10</span>
       </header>
 
       <div class="terminal-body">
-        <h1 class="glitch" data-text="ENTER IF YOU DARE">ENTER IF YOU DARE</h1>
-        <p class="tagline">// the machine is awake. type a blog name. it will open.</p>
+        <h1 class="glitch" data-text="BLOG">BLOG</h1>
+        <!-- <p class="tagline">// ......</p> -->
 
         <pre id="output" class="output" aria-live="polite"></pre>
 
@@ -35,7 +35,6 @@
         </form>
 
         <div class="buttons">
-          <button id="summon" type="button">[ SUMMON THE GHOST ]</button>
           <button id="toggle" type="button">[ PAUSE THE RAIN ]</button>
         </div>
       </div>
@@ -223,29 +222,12 @@
       ];
       typeLines(introLines);
 
-      var ghostLines = [
-        '> summoning ...',
-        '> 01001000 01000001 01001100 01001100 01001111',
-        '> 01010111 01000101 01000101 01001110',
-        '> you are not alone in this terminal.',
-        '> BOO.'
-      ];
-
-      function summon() {
-        if (typing) return;
-        document.body.classList.add('haunted');
-        setTimeout(function () { document.body.classList.remove('haunted'); }, 1600);
-        typeLines(ghostLines);
-      }
-      document.getElementById('summon').addEventListener('click', summon);
-
       /* ---------- Opening blogs ---------- */
       function openUrl(url, label) {
         println('> opening ' + label + ' ... ' + url);
-        var win = window.open(url, '_blank', 'noopener,noreferrer');
-        if (!win) {
-          println('> popup blocked! allow popups for this page and try again.');
-        }
+        var win = window.open(url, '_blank');
+        if (win) win.opener = null;
+        else println('> popup blocked! allow popups for this page and try again.');
       }
 
       function looksLikeUrl(s) {
@@ -309,7 +291,6 @@
             '  <blog name>     open a blog (e.g. krebs, schneier, 404media)\n' +
             '  open <name|url> same thing, explicitly\n' +
             '  list            show known blogs\n' +
-            '  summon          wake the ghost\n' +
             '  clear           wipe the screen\n' +
             '  help            this message'
           );
@@ -317,8 +298,6 @@
           listBlogs();
         } else if (lower === 'clear' || lower === 'cls') {
           out.textContent = '';
-        } else if (lower === 'summon') {
-          summon();
         } else if (first === 'open' || first === 'cd' || first === 'goto') {
           var rest = cmd.slice(parts[0].length).trim();
           if (rest) openBlog(rest);
