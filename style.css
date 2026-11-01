@@ -76,18 +76,14 @@ h1::before { color: var(--r); clip-path: inset(0 0 55% 0); animation: glitchTop 
 /* Orange copy: only the bottom 45% shows, jolts on a different timing (3s) */
 h1::after  { color: var(--o); clip-path: inset(55% 0 0 0); animation: glitchBottom 3s infinite linear alternate-reverse; }
 
-/* ============ OUTPUT TEXT (the line above the prompt) ============
+/* ============ BLOG POSTS AREA (the text inside the terminal) ============
    min-height / max-height: how tall the area is (it scrolls if text gets longer than max)
    font-size: .95rem = text size. text-shadow is the green glow. */
 pre { margin-top: 22px; min-height: 9.5em; max-height: 16em; overflow-y: auto; font: inherit; font-size: .95rem; line-height: 1.6; white-space: pre-wrap; word-break: break-word; text-shadow: 0 0 5px rgba(0,255,65,.6); }
 
-/* ============ PROMPT LINE ============
-   The row that holds the orange label and the text box */
-.prompt { display: flex; align-items: center; gap: 10px; margin-top: 4px; }
-/* The orange "root@haunted-host:~#" text: size, color, glow */
-label { font-size: .95rem; color: var(--o); white-space: nowrap; text-shadow: 0 0 6px rgba(255,106,0,.6); }
-/* The box you type in: invisible background/border, green text, green blinking cursor (caret-color) */
-input { flex: 1; min-width: 0; background: none; border: 0; outline: 0; color: var(--g); caret-color: var(--g); font: inherit; font-size: .95rem; text-shadow: 0 0 5px rgba(0,255,65,.6); }
+/* Links inside posts: green, underlined, orange on hover */
+pre a { color: var(--g); }
+pre a:hover { color: var(--o); }
 
 /* ============ PAUSE BUTTON ============
    .buttons = space above the button */

@@ -3,8 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- BROWSER TAB TITLE: change the text between the title tags -->
 <title>BLOG</title>
-<!-- Loads all the styling from style.css -->
+<!-- Loads all the styling from style.css (keep both files in the same folder) -->
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -26,7 +27,7 @@
       <!-- The red, amber and green dots (colors set in style.css) -->
       <i class="red"></i><i class="amber"></i><i class="green"></i>
       <!-- TOP BAR TEXT: change the text between the span tags -->
-      <span>1+1=10</span>
+      <span>1+0=10</span>
     </div>
 
     <!-- Everything inside the window under the top bar -->
@@ -36,13 +37,12 @@
            data-text is used for the red/orange glitch copies, so they must match. -->
       <h1 data-text="BLOG">BLOG</h1>
 
-      <!-- OUTPUT AREA: the text shown above the prompt. Edit the line, or add more lines.
-           (&gt; just shows a ">" character) -->
-      <pre>&gt; type "help" for commands, or just type a blog name.</pre>
-
-      <!-- PROMPT LINE: orange label on the left + a text box you can type in.
-           Change the text between the label tags to change the prompt. -->
-      <div class="prompt"><label>gabem26@blog:~#</label><input spellcheck="false"></div>
+      <!-- BLOG POSTS GO HERE: type each post on its own line between the pre tags.
+           Line breaks are kept exactly as you type them. Example:
+               My first post
+               Another post: <a href="https://example.com">read it</a>
+      -->
+      <pre></pre>
 
       <!-- PAUSE BUTTON: change the label text here AND in the script below (2 places there) -->
       <div class="buttons"><button id="pause" type="button">[ PAUSE THE RAIN ]</button></div>
