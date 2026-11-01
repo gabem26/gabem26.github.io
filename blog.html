@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>root@yourname — blog</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <div class="wrap bar">
+      <a class="brand" href="index.html">root@yourname:~$</a>
+      <nav>
+        <a href="index.html">home</a>
+        <a href="blog.html" class="active">blog</a>
+        <a href="about.html">about</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <div class="wrap">
+      <p class="prompt"><b>$</b> ls -lt <span class="path">~/blog</span></p>
+      <h1>All posts<span class="cursor"></span></h1>
+
+      <ul class="posts">
+        <li>
+          <a href="post-1.html">
+            <span class="date">2026-10-28</span>
+            <span class="title">Hardening SSH in 10 minutes</span>
+            <span class="desc">Keys only, no root, a non-default port and fail2ban.</span>
+          </a>
+        </li>
+        <li>
+          <a href="post-2.html">
+            <span class="date">2026-10-15</span>
+            <span class="title">Bash one-liners I can't live without</span>
+            <span class="desc">A small pile of pipes that saves me hours every week.</span>
+          </a>
+        </li>
+        <li>
+          <a href="post-3.html">
+            <span class="date">2026-09-30</span>
+            <span class="title">Why I self-host everything</span>
+            <span class="desc">Owning your stack: the upsides, the pain, and my setup.</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+  </main>
+
+  <footer>
+    <div class="wrap">
+      <span>© <span id="y"></span> yourname</span>
+      <span>built with html + css. no trackers.</span>
+    </div>
+  </footer>
+  <script>document.getElementById('y').textContent = new Date().getFullYear();</script>
+</body>
+</html>
