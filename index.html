@@ -1,132 +1,365 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>// THE HAUNTED TERMINAL</title>
-<link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>// THE HAUNTED TERMINAL</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<canvas id="rain"></canvas>
+  <!-- Falling 1s and 0s -->
+  <canvas id="rain" aria-hidden="true"></canvas>
 
-<main>
-  <section class="terminal">
-    <div class="bar"><i class="r"></i><i class="a"></i><i class="g"></i></div>
-    <div class="body">
-      <h1 data-text="ENTER IF YOU DARE">ENTER IF YOU DARE</h1>
-      <p class="tag">// type a blog name. it will open.</p>
-      <pre id="out"></pre>
-      <form id="form" autocomplete="off">
-        <label for="cmd">root@haunted-host:~#</label>
-        <input id="cmd" spellcheck="false" autocapitalize="off" disabled>
-      </form>
-    </div>
-  </section>
-</main>
+  <!-- Spooky overlays -->
+  <div class="vignette" aria-hidden="true"></div>
+  <div class="scanlines" aria-hidden="true"></div>
 
-<script>
-/* ---------- Binary rain ---------- */
-var cv = document.getElementById('rain'), ctx = cv.getContext('2d');
-var size = 18, w, h, drops = [], speed = [];
+  <main class="stage">
+    <section class="terminal" id="terminal">
+      <header class="terminal-bar">
+        <span class="dot red"></span>
+        <span class="dot amber"></span>
+        <span class="dot green"></span>
+        <span class="terminal-title">root@haunted-host:~#</span>
+      </header>
 
-function resize() {
-  w = cv.width = innerWidth;
-  h = cv.height = innerHeight;
-  for (var i = drops.length; i < Math.ceil(w / size); i++) {
-    drops[i] = -Math.random() * 50;
-    speed[i] = 0.5 + Math.random();
-  }
-}
-addEventListener('resize', resize);
-resize();
+      <div class="terminal-body">
+        <h1 class="glitch" data-text="ENTER IF YOU DARE">ENTER IF YOU DARE</h1>
+        <p class="tagline">// the machine is awake. type a blog name. it will open.</p>
 
-setInterval(function () {
-  ctx.fillStyle = 'rgba(0,0,0,0.09)';          // fade = trail
-  ctx.fillRect(0, 0, w, h);
-  ctx.font = 'bold ' + size + 'px monospace';
-  ctx.textBaseline = 'top';
-  for (var i = 0; i < Math.ceil(w / size); i++) {
-    var x = i * size, y = drops[i] * size, r = Math.random();
-    var c = r > .985 ? '#ff6a00' : r > .972 ? '#ff1744' : '#00ff41';  // green, orange, red
-    ctx.fillStyle = '#d6ffe0';                  // bright head
-    ctx.fillText(Math.random() > .5 ? 1 : 0, x, y);
-    ctx.fillStyle = c;                          // colored digit behind it
-    ctx.fillText(Math.random() > .5 ? 1 : 0, x, y - size);
-    if (y > h && Math.random() > .975) drops[i] = -Math.random() * 20;
-    drops[i] += speed[i];
-  }
-}, 45);
+        <pre id="output" class="output" aria-live="polite"></pre>
 
-/* ---------- Terminal ---------- */
-var out = document.getElementById('out');
-var cmd = document.getElementById('cmd');
-var hist = [], hi = 0;
+        <form id="promptLine" class="prompt-line" autocomplete="off">
+          <label for="cmd" class="prompt">root@haunted-host:~#</label>
+          <input id="cmd" type="text" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" disabled>
+        </form>
 
-// Add your own blogs here: name (lowercase, no spaces) : url
-var BLOGS = {
-  krebs: 'https://krebsonsecurity.com',
-  schneier: 'https://www.schneier.com',
-  hackernews: 'https://thehackernews.com',
-  bleepingcomputer: 'https://www.bleepingcomputer.com',
-  troyhunt: 'https://www.troyhunt.com',
-  darkreading: 'https://www.darkreading.com',
-  '404media': 'https://www.404media.co',
-  daringfireball: 'https://daringfireball.net',
-  paulgraham: 'https://paulgraham.com',
-  overreacted: 'https://overreacted.io',
-  joelonsoftware: 'https://www.joelonsoftware.com',
-  codinghorror: 'https://blog.codinghorror.com',
-  martinfowler: 'https://martinfowler.com',
-  stratechery: 'https://stratechery.com',
-  xkcd: 'https://xkcd.com',
-  hn: 'https://news.ycombinator.com'
-};
+        <div class="buttons">
+          <button id="summon" type="button">[ SUMMON THE GHOST ]</button>
+          <button id="toggle" type="button">[ PAUSE THE RAIN ]</button>
+        </div>
+      </div>
+    </section>
+  </main>
 
-function println(t) {
-  out.textContent += '\n' + t;
-  out.scrollTop = out.scrollHeight;
-}
+  <script>
+    (function () {
+      /* ---------- Binary rain ---------- */
+      var canvas = document.getElementById('rain');
+      var ctx = canvas.getContext('2d');
+      var fontSize = 18;
+      var columns = 0;
+      var drops = [];
+      var speeds = [];
+      var width = 0, height = 0;
+      var running = true;
+      var lastTime = 0;
+      var frameInterval = 45; // ms between steps
 
-function go(q) {
-  var u = BLOGS[q.toLowerCase().replace(/[^a-z0-9]/g, '')];
-  if (!u) u = /^(https?:\/\/)?[\w-]+(\.[\w-]+)+\S*$/i.test(q)
-    ? (/^https?:/i.test(q) ? q : 'https://' + q)                                  // domain / url
-    : 'https://duckduckgo.com/?q=' + encodeURIComponent('!ducky ' + q + ' blog'); // lucky search
-  println('> opening ' + u);
-  if (!window.open(u, '_blank', 'noopener')) println('> popup blocked. allow popups and retry.');
-}
+      function resize() {
+        var dpr = window.devicePixelRatio || 1;
+        width = window.innerWidth;
+        height = window.innerHeight;
+        canvas.width = Math.floor(width * dpr);
+        canvas.height = Math.floor(height * dpr);
+        canvas.style.width = width + 'px';
+        canvas.style.height = height + 'px';
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        ctx.fillStyle = '#000';
+        ctx.fillRect(0, 0, width, height);
 
-document.getElementById('form').onsubmit = function (e) {
-  e.preventDefault();
-  var v = cmd.value.trim();
-  cmd.value = '';
-  if (!v) return;
-  hist.push(v); hi = hist.length;
-  println('root@haunted-host:~# ' + v);
-  var l = v.toLowerCase();
-  if (l == 'clear') out.textContent = '';
-  else if (l == 'list') println('> ' + Object.keys(BLOGS).join(', '));
-  else if (l == 'help') println('> type a blog name, domain, or url.  commands: list, clear, help');
-  else go(v.replace(/^open\s+/i, ''));
-};
+        columns = Math.ceil(width / fontSize);
+        var old = drops.length;
+        drops.length = columns;
+        speeds.length = columns;
+        for (var i = old; i < columns; i++) {
+          drops[i] = Math.floor(Math.random() * -50); // staggered start above screen
+          speeds[i] = 0.5 + Math.random() * 1.0;
+        }
+      }
 
-cmd.onkeydown = function (e) {   // up/down = history
-  if (e.key == 'ArrowUp' && hi > 0) cmd.value = hist[--hi];
-  else if (e.key == 'ArrowDown') cmd.value = hist[++hi] || (hi = hist.length, '');
-  else return;
-  e.preventDefault();
-};
+      function draw(time) {
+        requestAnimationFrame(draw);
+        if (!running) return;
+        if (time - lastTime < frameInterval) return;
+        lastTime = time;
 
-document.onclick = function () { if (!cmd.disabled) cmd.focus(); };
+        // Fade previous frame to leave a trail
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.09)';
+        ctx.fillRect(0, 0, width, height);
 
-// typed intro
-var intro = '> initializing haunted_protocol.exe ...\n> bypassing firewall ........ [OK]\n' +
-  '> decrypting souls ........... [OK]\n> it is Halloween. the dead are online.\n' +
-  '> type "help" for commands, or just type a blog name.\n', n = 0;
-var t = setInterval(function () {
-  out.textContent = intro.slice(0, ++n);
-  if (n >= intro.length) { clearInterval(t); cmd.disabled = false; cmd.focus(); }
-}, 20);
-</script>
+        ctx.font = 'bold ' + fontSize + 'px "Courier New", monospace';
+        ctx.textBaseline = 'top';
+
+        for (var i = 0; i < columns; i++) {
+          var y = drops[i] * fontSize;
+          var x = i * fontSize;
+          var ch = Math.random() > 0.5 ? '1' : '0';
+
+          // Trail character in green (spooky orange / blood red sprinkled in)
+          var roll = Math.random();
+          var color = '#00ff41';
+          if (roll > 0.985) color = '#ff6a00';
+          else if (roll > 0.972) color = '#ff1744';
+
+          // Bright "head" of the stream
+          ctx.fillStyle = '#d6ffe0';
+          ctx.shadowColor = color;
+          ctx.shadowBlur = 8;
+          ctx.fillText(ch, x, y);
+
+          // Overdraw the character just behind the head in the color
+          ctx.fillStyle = color;
+          ctx.shadowBlur = 0;
+          ctx.fillText(Math.random() > 0.5 ? '1' : '0', x, y - fontSize);
+
+          // Reset to top after leaving the screen (random delay)
+          if (y > height && Math.random() > 0.975) {
+            drops[i] = Math.floor(Math.random() * -20);
+            speeds[i] = 0.5 + Math.random() * 1.0;
+          }
+          drops[i] += speeds[i];
+        }
+      }
+
+      window.addEventListener('resize', resize);
+      resize();
+
+      var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (reduceMotion) running = false;
+      requestAnimationFrame(draw);
+
+      var toggleBtn = document.getElementById('toggle');
+      function syncToggle() {
+        toggleBtn.textContent = running ? '[ PAUSE THE RAIN ]' : '[ RESUME THE RAIN ]';
+      }
+      syncToggle();
+      toggleBtn.addEventListener('click', function () {
+        running = !running;
+        syncToggle();
+      });
+
+      /* ---------- Terminal ---------- */
+      var PROMPT = 'root@haunted-host:~# ';
+      var out = document.getElementById('output');
+      var form = document.getElementById('promptLine');
+      var input = document.getElementById('cmd');
+      var terminal = document.getElementById('terminal');
+
+      // Known blogs: key (lowercase, letters/numbers only) -> URL
+      var BLOGS = {
+        krebsonsecurity: 'https://krebsonsecurity.com',
+        krebs:           'https://krebsonsecurity.com',
+        schneier:        'https://www.schneier.com',
+        thehackernews:   'https://thehackernews.com',
+        hackernews:      'https://thehackernews.com',
+        bleepingcomputer:'https://www.bleepingcomputer.com',
+        troyhunt:        'https://www.troyhunt.com',
+        darkreading:     'https://www.darkreading.com',
+        '404media':      'https://www.404media.co',
+        daringfireball:  'https://daringfireball.net',
+        paulgraham:      'https://paulgraham.com',
+        overreacted:     'https://overreacted.io',
+        joelonsoftware:  'https://www.joelonsoftware.com',
+        codinghorror:    'https://blog.codinghorror.com',
+        martinfowler:    'https://martinfowler.com',
+        stratechery:     'https://stratechery.com',
+        xkcd:            'https://xkcd.com',
+        hn:              'https://news.ycombinator.com',
+        ycombinator:     'https://news.ycombinator.com'
+      };
+
+      var typing = false;
+
+      function setBusy(busy) {
+        input.disabled = busy;
+        if (!busy) input.focus();
+      }
+
+      function scrollDown() {
+        out.scrollTop = out.scrollHeight;
+      }
+
+      function println(text) {
+        out.textContent += (out.textContent ? '\n' : '') + text;
+        scrollDown();
+      }
+
+      // Types lines out one char at a time, replacing the output
+      function typeLines(list, done) {
+        if (typing) return;
+        typing = true;
+        setBusy(true);
+        out.textContent = '';
+        var li = 0, ci = 0;
+        (function step() {
+          if (li >= list.length) {
+            typing = false;
+            setBusy(false);
+            if (done) done();
+            return;
+          }
+          var line = list[li];
+          if (ci <= line.length) {
+            var prior = list.slice(0, li).join('\n') + (li ? '\n' : '');
+            out.textContent = prior + line.slice(0, ci);
+            scrollDown();
+            ci++;
+            setTimeout(step, 18 + Math.random() * 26);
+          } else {
+            li++; ci = 0;
+            setTimeout(step, 220);
+          }
+        })();
+      }
+
+      var introLines = [
+        '> initializing haunted_protocol.exe ...',
+        '> bypassing firewall ........ [OK]',
+        '> decrypting souls ........... [OK]',
+        '> WARNING: unknown presence detected on port 1031',
+        '> it is Halloween. the dead are online.',
+        '> type "help" for commands, or just type a blog name.'
+      ];
+      typeLines(introLines);
+
+      var ghostLines = [
+        '> summoning ...',
+        '> 01001000 01000001 01001100 01001100 01001111',
+        '> 01010111 01000101 01000101 01001110',
+        '> you are not alone in this terminal.',
+        '> BOO.'
+      ];
+
+      function summon() {
+        if (typing) return;
+        document.body.classList.add('haunted');
+        setTimeout(function () { document.body.classList.remove('haunted'); }, 1600);
+        typeLines(ghostLines);
+      }
+      document.getElementById('summon').addEventListener('click', summon);
+
+      /* ---------- Opening blogs ---------- */
+      function openUrl(url, label) {
+        println('> opening ' + label + ' ... ' + url);
+        var win = window.open(url, '_blank', 'noopener,noreferrer');
+        if (!win) {
+          println('> popup blocked! allow popups for this page and try again.');
+        }
+      }
+
+      function looksLikeUrl(s) {
+        return /^https?:\/\/\S+$/i.test(s) || /^(www\.)?[a-z0-9-]+(\.[a-z0-9-]+)+(\/\S*)?$/i.test(s);
+      }
+
+      function openBlog(raw) {
+        var q = raw.trim();
+        if (!q) return;
+
+        // 1) A full URL or domain: open as-is
+        if (looksLikeUrl(q)) {
+          var url = /^https?:\/\//i.test(q) ? q : 'https://' + q;
+          openUrl(url, q);
+          return;
+        }
+
+        // 2) A known blog name
+        var key = q.toLowerCase().replace(/[^a-z0-9]/g, '');
+        if (BLOGS[key]) {
+          openUrl(BLOGS[key], q);
+          return;
+        }
+
+        // 3) Unknown: "I'm feeling lucky" search for the blog
+        println('> no local record of "' + q + '". asking the void ...');
+        var lucky = 'https://duckduckgo.com/?q=' + encodeURIComponent('!ducky ' + q + ' blog');
+        openUrl(lucky, q + ' (lucky search)');
+      }
+
+      function listBlogs() {
+        var seen = {};
+        var names = [];
+        Object.keys(BLOGS).forEach(function (k) {
+          var u = BLOGS[k];
+          if (!seen[u]) { seen[u] = true; names.push(k); }
+        });
+        println('> known blogs:\n  ' + names.join(', '));
+        println('> anything else gets a lucky search, or type a domain.');
+      }
+
+      /* ---------- Command handling ---------- */
+      var history = [];
+      var histIndex = 0;
+
+      function run(raw) {
+        var cmd = raw.trim();
+        println(PROMPT + raw);
+        if (!cmd) return;
+
+        history.push(cmd);
+        histIndex = history.length;
+
+        var lower = cmd.toLowerCase();
+        var parts = cmd.split(/\s+/);
+        var first = parts[0].toLowerCase();
+
+        if (lower === 'help' || lower === '?') {
+          println(
+            '> commands:\n' +
+            '  <blog name>     open a blog (e.g. krebs, schneier, 404media)\n' +
+            '  open <name|url> same thing, explicitly\n' +
+            '  list            show known blogs\n' +
+            '  summon          wake the ghost\n' +
+            '  clear           wipe the screen\n' +
+            '  help            this message'
+          );
+        } else if (lower === 'list' || lower === 'ls') {
+          listBlogs();
+        } else if (lower === 'clear' || lower === 'cls') {
+          out.textContent = '';
+        } else if (lower === 'summon') {
+          summon();
+        } else if (first === 'open' || first === 'cd' || first === 'goto') {
+          var rest = cmd.slice(parts[0].length).trim();
+          if (rest) openBlog(rest);
+          else println('> usage: open <blog name or url>');
+        } else {
+          openBlog(cmd);
+        }
+      }
+
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        if (typing) return;
+        var value = input.value;
+        input.value = '';
+        run(value);
+      });
+
+      input.addEventListener('keydown', function (e) {
+        if (e.key === 'ArrowUp') {
+          if (history.length && histIndex > 0) {
+            histIndex--;
+            input.value = history[histIndex];
+          }
+          e.preventDefault();
+        } else if (e.key === 'ArrowDown') {
+          if (histIndex < history.length - 1) {
+            histIndex++;
+            input.value = history[histIndex];
+          } else {
+            histIndex = history.length;
+            input.value = '';
+          }
+          e.preventDefault();
+        }
+      });
+
+      // Clicking anywhere on the terminal focuses the prompt
+      terminal.addEventListener('click', function (e) {
+        if (e.target.tagName !== 'BUTTON' && !input.disabled) input.focus();
+      });
+    })();
+  </script>
 </body>
 </html>
