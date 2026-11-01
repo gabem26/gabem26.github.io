@@ -1,138 +1,319 @@
-:root { --g: #00ff41; --o: #ff6a00; --r: #ff1744; }
+:root {
+  --bg: #000;
+  --green: #00ff41;
+  --green-dim: #0b8f2a;
+  --orange: #ff6a00;
+  --blood: #ff1744;
+  --panel: rgba(0, 10, 3, 0.78);
+}
 
-* { box-sizing: border-box; margin: 0; padding: 0; }
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
 
 html, body {
   height: 100%;
-  background: #000;
-  color: var(--g);
-  font-family: "Courier New", monospace;
+  background: var(--bg);
+  color: var(--green);
+  font-family: "Courier New", Courier, monospace;
   overflow: hidden;
 }
 
-/* rain canvas */
-#rain { position: fixed; inset: 0; }
+/* ---------- Binary rain canvas ---------- */
+#rain {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  display: block;
+}
 
-/* vignette + scanlines */
-body::after {
-  content: "";
+/* ---------- Overlays ---------- */
+.vignette {
   position: fixed;
   inset: 0;
   z-index: 1;
   pointer-events: none;
-  background:
-    repeating-linear-gradient(transparent 0 3px, rgba(0,0,0,.22) 3px 4px),
-    radial-gradient(ellipse at center, transparent 35%, rgba(20,0,0,.55) 75%, rgba(0,0,0,.92));
+  background: radial-gradient(ellipse at center,
+    rgba(0, 0, 0, 0) 35%,
+    rgba(20, 0, 0, 0.55) 75%,
+    rgba(0, 0, 0, 0.92) 100%);
   animation: flicker 6s infinite;
 }
 
-main {
-  position: relative;
+.scanlines {
+  position: fixed;
+  inset: 0;
   z-index: 2;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0) 0,
+    rgba(0, 0, 0, 0) 2px,
+    rgba(0, 0, 0, 0.22) 3px,
+    rgba(0, 0, 0, 0.22) 4px
+  );
+}
+
+@keyframes flicker {
+  0%, 100% { opacity: 1; }
+  47%      { opacity: 1; }
+  48%      { opacity: 0.6; }
+  50%      { opacity: 1; }
+  82%      { opacity: 0.85; }
+  83%      { opacity: 1; }
+}
+
+/* ---------- Layout ---------- */
+.stage {
+  position: relative;
+  z-index: 3;
   min-height: 100%;
-  display: grid;
-  place-items: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   padding: 20px;
 }
 
-/* terminal window */
+/* ---------- Terminal window ---------- */
 .terminal {
   width: min(720px, 100%);
-  background: rgba(0, 10, 3, .78);
-  border: 1px solid #0b8f2a;
+  background: var(--panel);
+  border: 1px solid var(--green-dim);
   border-radius: 8px;
-  box-shadow: 0 0 25px rgba(0,255,65,.25), 0 0 80px rgba(255,23,68,.12), inset 0 0 30px rgba(0,255,65,.05);
+  box-shadow:
+    0 0 25px rgba(0, 255, 65, 0.25),
+    0 0 80px rgba(255, 23, 68, 0.12),
+    inset 0 0 30px rgba(0, 255, 65, 0.05);
   backdrop-filter: blur(2px);
   overflow: hidden;
 }
 
-.bar { display: flex; gap: 8px; padding: 10px 14px; background: rgba(0,40,10,.7); border-bottom: 1px solid #0b8f2a; }
+.terminal-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: rgba(0, 40, 10, 0.7);
+  border-bottom: 1px solid var(--green-dim);
+}
 
-.bar i { width: 12px; height: 12px; border-radius: 50%; }
-.r { background: var(--r); box-shadow: 0 0 8px var(--r); }
-.a { background: var(--o); box-shadow: 0 0 8px var(--o); }
-.g { background: var(--g); box-shadow: 0 0 8px var(--g); }
+.dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  display: inline-block;
+}
+.dot.red   { background: var(--blood); box-shadow: 0 0 8px var(--blood); }
+.dot.amber { background: var(--orange); box-shadow: 0 0 8px var(--orange); }
+.dot.green { background: var(--green); box-shadow: 0 0 8px var(--green); }
 
-.body { padding: 28px 26px 30px; }
+.terminal-title {
+  margin-left: 10px;
+  font-size: 0.85rem;
+  color: var(--green-dim);
+}
 
-/* glitch title */
-h1 {
+.terminal-body {
+  padding: 28px 26px 30px;
+}
+
+/* ---------- Glitch title ---------- */
+.glitch {
   position: relative;
   font-size: clamp(1.8rem, 6vw, 3.2rem);
-  letter-spacing: .08em;
-  text-shadow: 0 0 6px var(--g), 0 0 22px rgba(0,255,65,.6);
-  animation: flicker 4s infinite;
+  letter-spacing: 0.08em;
+  color: var(--green);
+  text-shadow: 0 0 6px var(--green), 0 0 22px rgba(0, 255, 65, 0.6);
+  animation: titleFlicker 4s infinite;
 }
 
-h1::before, h1::after { content: attr(data-text); position: absolute; left: 0; top: 0; text-shadow: none; }
-
-h1::before { color: var(--r); clip-path: inset(0 0 55% 0); animation: glitch 2.4s infinite linear alternate-reverse; }
-h1::after  { color: var(--o); clip-path: inset(55% 0 0 0); animation: glitch 3s infinite linear alternate-reverse; }
-
-@keyframes glitch {
-  0%, 85% { transform: none; }
-  88% { transform: translate(-4px, -1px); } 92% { transform: translate(3px, 1px); } 96% { transform: translate(-2px, 0); }
+.glitch::before,
+.glitch::after {
+  content: attr(data-text);
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  overflow: hidden;
 }
 
-@keyframes flicker {
-  0%, 47%, 50%, 83%, 100% { opacity: 1; }
-  48% { opacity: .6; }
-  82% { opacity: .85; }
+.glitch::before {
+  color: var(--blood);
+  text-shadow: none;
+  animation: glitchTop 2.4s infinite linear alternate-reverse;
+  clip-path: polygon(0 0, 100% 0, 100% 45%, 0 45%);
 }
 
-.tag { margin-top: 10px; color: var(--o); text-shadow: 0 0 8px rgba(255,106,0,.6); }
+.glitch::after {
+  color: var(--orange);
+  text-shadow: none;
+  animation: glitchBottom 3s infinite linear alternate-reverse;
+  clip-path: polygon(0 55%, 100% 55%, 100% 100%, 0 100%);
+}
 
-/* output + prompt */
-pre {
+@keyframes glitchTop {
+  0%, 88%  { transform: translate(0, 0); }
+  90%      { transform: translate(-4px, -1px); }
+  93%      { transform: translate(3px, 1px); }
+  96%      { transform: translate(-2px, 0); }
+  100%     { transform: translate(0, 0); }
+}
+
+@keyframes glitchBottom {
+  0%, 82%  { transform: translate(0, 0); }
+  85%      { transform: translate(4px, 1px); }
+  90%      { transform: translate(-3px, -1px); }
+  95%      { transform: translate(2px, 0); }
+  100%     { transform: translate(0, 0); }
+}
+
+@keyframes titleFlicker {
+  0%, 100% { opacity: 1; }
+  41%      { opacity: 1; }
+  42%      { opacity: 0.55; }
+  43%      { opacity: 1; }
+  70%      { opacity: 0.8; }
+  71%      { opacity: 1; }
+}
+
+.tagline {
+  margin-top: 10px;
+  color: var(--orange);
+  text-shadow: 0 0 8px rgba(255, 106, 0, 0.6);
+  font-size: 0.95rem;
+}
+
+/* ---------- Typed output ---------- */
+.output {
   margin-top: 22px;
   min-height: 9.5em;
   max-height: 16em;
   overflow-y: auto;
   white-space: pre-wrap;
-  font: inherit;
+  word-break: break-word;
+  font-family: inherit;
+  font-size: 0.95rem;
   line-height: 1.6;
-  text-shadow: 0 0 5px rgba(0,255,65,.6);
+  color: var(--green);
+  text-shadow: 0 0 5px rgba(0, 255, 65, 0.6);
 }
 
-form { display: flex; gap: 10px; margin-top: 4px; }
+/* ---------- Command prompt ---------- */
+.prompt-line {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 4px;
+}
 
-label { color: var(--o); white-space: nowrap; text-shadow: 0 0 6px rgba(255,106,0,.6); }
+.prompt {
+  flex: 0 0 auto;
+  color: var(--orange);
+  text-shadow: 0 0 6px rgba(255, 106, 0, 0.6);
+  font-size: 0.95rem;
+  white-space: nowrap;
+}
 
-input {
-  flex: 1;
+#cmd {
+  flex: 1 1 auto;
   min-width: 0;
-  background: none;
-  border: 0;
-  outline: 0;
-  color: var(--g);
-  caret-color: var(--g);
-  font: inherit;
-  text-shadow: 0 0 5px rgba(0,255,65,.6);
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--green);
+  caret-color: var(--green);
+  font-family: inherit;
+  font-size: 0.95rem;
+  text-shadow: 0 0 5px rgba(0, 255, 65, 0.6);
 }
 
-input:disabled { opacity: .4; }
+#cmd:disabled {
+  opacity: 0.4;
+}
 
-/* pause button */
-.buttons { margin-top: 22px; }
+/* ---------- Buttons ---------- */
+.buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-top: 22px;
+}
 
 button {
-  font: inherit;
-  font-size: .9rem;
-  letter-spacing: .05em;
-  color: var(--g);
-  background: none;
-  border: 1px solid var(--g);
+  font-family: inherit;
+  font-size: 0.9rem;
+  letter-spacing: 0.05em;
+  color: var(--green);
+  background: transparent;
+  border: 1px solid var(--green);
   padding: 10px 16px;
   cursor: pointer;
-  text-shadow: 0 0 6px rgba(0,255,65,.7);
-  box-shadow: 0 0 10px rgba(0,255,65,.25);
-  transition: .15s;
+  text-shadow: 0 0 6px rgba(0, 255, 65, 0.7);
+  box-shadow: 0 0 10px rgba(0, 255, 65, 0.25);
+  transition: background 0.15s, color 0.15s, box-shadow 0.15s, border-color 0.15s;
 }
 
-button:hover, button:focus-visible { outline: 0; background: var(--g); color: #000; text-shadow: none; box-shadow: 0 0 20px rgba(0,255,65,.8); }
+button:hover,
+button:focus-visible {
+  outline: none;
+  background: var(--green);
+  color: #000;
+  text-shadow: none;
+  box-shadow: 0 0 20px rgba(0, 255, 65, 0.8);
+}
 
-@media (max-width: 480px) { .body { padding: 20px 16px 24px; } }
+#summon {
+  color: var(--blood);
+  border-color: var(--blood);
+  text-shadow: 0 0 6px rgba(255, 23, 68, 0.7);
+  box-shadow: 0 0 10px rgba(255, 23, 68, 0.3);
+}
+
+#summon:hover,
+#summon:focus-visible {
+  background: var(--blood);
+  color: #000;
+  box-shadow: 0 0 22px rgba(255, 23, 68, 0.85);
+}
+
+/* ---------- Haunted state (after SUMMON) ---------- */
+body.haunted .terminal {
+  animation: shake 0.12s infinite;
+  border-color: var(--blood);
+  box-shadow:
+    0 0 35px rgba(255, 23, 68, 0.6),
+    inset 0 0 40px rgba(255, 23, 68, 0.12);
+}
+
+body.haunted .vignette {
+  background: radial-gradient(ellipse at center,
+    rgba(80, 0, 0, 0.1) 25%,
+    rgba(120, 0, 0, 0.6) 75%,
+    rgba(0, 0, 0, 0.95) 100%);
+}
+
+@keyframes shake {
+  0%   { transform: translate(1px, 1px); }
+  25%  { transform: translate(-2px, 1px); }
+  50%  { transform: translate(2px, -1px); }
+  75%  { transform: translate(-1px, -2px); }
+  100% { transform: translate(1px, 2px); }
+}
+
+/* ---------- Small screens & accessibility ---------- */
+@media (max-width: 480px) {
+  .terminal-body { padding: 20px 16px 24px; }
+  .output { font-size: 0.85rem; }
+}
 
 @media (prefers-reduced-motion: reduce) {
-  h1, h1::before, h1::after, body::after { animation: none; }
+  .glitch,
+  .glitch::before,
+  .glitch::after,
+  .vignette,
+  body.haunted .terminal {
+    animation: none;
+  }
 }
