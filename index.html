@@ -15,19 +15,24 @@
   <div class="scanlines" aria-hidden="true"></div>
 
   <main class="stage">
-    <section class="terminal">
+    <section class="terminal" id="terminal">
       <header class="terminal-bar">
         <span class="dot red"></span>
         <span class="dot amber"></span>
         <span class="dot green"></span>
-        <span class="terminal-title">root@haunted-host:~# </span>
+        <span class="terminal-title">root@haunted-host:~#</span>
       </header>
 
       <div class="terminal-body">
         <h1 class="glitch" data-text="ENTER IF YOU DARE">ENTER IF YOU DARE</h1>
-        <p class="tagline">// the machine is awake. it knows your name.</p>
+        <p class="tagline">// the machine is awake. type a blog name. it will open.</p>
 
         <pre id="output" class="output" aria-live="polite"></pre>
+
+        <form id="promptLine" class="prompt-line" autocomplete="off">
+          <label for="cmd" class="prompt">root@haunted-host:~#</label>
+          <input id="cmd" type="text" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" disabled>
+        </form>
 
         <div class="buttons">
           <button id="summon" type="button">[ SUMMON THE GHOST ]</button>
@@ -134,40 +139,90 @@
         syncToggle();
       });
 
-      /* ---------- Terminal typing ---------- */
+      /* ---------- Terminal ---------- */
+      var PROMPT = 'root@haunted-host:~# ';
       var out = document.getElementById('output');
-      var lines = [
+      var form = document.getElementById('promptLine');
+      var input = document.getElementById('cmd');
+      var terminal = document.getElementById('terminal');
+
+      // Known blogs: key (lowercase, letters/numbers only) -> URL
+      var BLOGS = {
+        krebsonsecurity: 'https://krebsonsecurity.com',
+        krebs:           'https://krebsonsecurity.com',
+        schneier:        'https://www.schneier.com',
+        thehackernews:   'https://thehackernews.com',
+        hackernews:      'https://thehackernews.com',
+        bleepingcomputer:'https://www.bleepingcomputer.com',
+        troyhunt:        'https://www.troyhunt.com',
+        darkreading:     'https://www.darkreading.com',
+        '404media':      'https://www.404media.co',
+        daringfireball:  'https://daringfireball.net',
+        paulgraham:      'https://paulgraham.com',
+        overreacted:     'https://overreacted.io',
+        joelonsoftware:  'https://www.joelonsoftware.com',
+        codinghorror:    'https://blog.codinghorror.com',
+        martinfowler:    'https://martinfowler.com',
+        stratechery:     'https://stratechery.com',
+        xkcd:            'https://xkcd.com',
+        hn:              'https://news.ycombinator.com',
+        ycombinator:     'https://news.ycombinator.com'
+      };
+
+      var typing = false;
+
+      function setBusy(busy) {
+        input.disabled = busy;
+        if (!busy) input.focus();
+      }
+
+      function scrollDown() {
+        out.scrollTop = out.scrollHeight;
+      }
+
+      function println(text) {
+        out.textContent += (out.textContent ? '\n' : '') + text;
+        scrollDown();
+      }
+
+      // Types lines out one char at a time, replacing the output
+      function typeLines(list, done) {
+        if (typing) return;
+        typing = true;
+        setBusy(true);
+        out.textContent = '';
+        var li = 0, ci = 0;
+        (function step() {
+          if (li >= list.length) {
+            typing = false;
+            setBusy(false);
+            if (done) done();
+            return;
+          }
+          var line = list[li];
+          if (ci <= line.length) {
+            var prior = list.slice(0, li).join('\n') + (li ? '\n' : '');
+            out.textContent = prior + line.slice(0, ci);
+            scrollDown();
+            ci++;
+            setTimeout(step, 18 + Math.random() * 26);
+          } else {
+            li++; ci = 0;
+            setTimeout(step, 220);
+          }
+        })();
+      }
+
+      var introLines = [
         '> initializing haunted_protocol.exe ...',
         '> bypassing firewall ........ [OK]',
         '> decrypting souls ........... [OK]',
         '> WARNING: unknown presence detected on port 1031',
         '> it is Halloween. the dead are online.',
-        '> awaiting input_'
+        '> type "help" for commands, or just type a blog name.'
       ];
+      typeLines(introLines);
 
-      var typing = false;
-      function typeLines(list, done) {
-        if (typing) return;
-        typing = true;
-        out.textContent = '';
-        var li = 0, ci = 0;
-        (function step() {
-          if (li >= list.length) { typing = false; if (done) done(); return; }
-          var line = list[li];
-          if (ci <= line.length) {
-            var prior = list.slice(0, li).join('\n') + (li ? '\n' : '');
-            out.textContent = prior + line.slice(0, ci);
-            ci++;
-            setTimeout(step, 22 + Math.random() * 30);
-          } else {
-            li++; ci = 0;
-            setTimeout(step, 260);
-          }
-        })();
-      }
-      typeLines(lines);
-
-      /* ---------- Summon button ---------- */
       var ghostLines = [
         '> summoning ...',
         '> 01001000 01000001 01001100 01001100 01001111',
@@ -175,10 +230,134 @@
         '> you are not alone in this terminal.',
         '> BOO.'
       ];
-      document.getElementById('summon').addEventListener('click', function () {
+
+      function summon() {
+        if (typing) return;
         document.body.classList.add('haunted');
         setTimeout(function () { document.body.classList.remove('haunted'); }, 1600);
         typeLines(ghostLines);
+      }
+      document.getElementById('summon').addEventListener('click', summon);
+
+      /* ---------- Opening blogs ---------- */
+      function openUrl(url, label) {
+        println('> opening ' + label + ' ... ' + url);
+        var win = window.open(url, '_blank', 'noopener,noreferrer');
+        if (!win) {
+          println('> popup blocked! allow popups for this page and try again.');
+        }
+      }
+
+      function looksLikeUrl(s) {
+        return /^https?:\/\/\S+$/i.test(s) || /^(www\.)?[a-z0-9-]+(\.[a-z0-9-]+)+(\/\S*)?$/i.test(s);
+      }
+
+      function openBlog(raw) {
+        var q = raw.trim();
+        if (!q) return;
+
+        // 1) A full URL or domain: open as-is
+        if (looksLikeUrl(q)) {
+          var url = /^https?:\/\//i.test(q) ? q : 'https://' + q;
+          openUrl(url, q);
+          return;
+        }
+
+        // 2) A known blog name
+        var key = q.toLowerCase().replace(/[^a-z0-9]/g, '');
+        if (BLOGS[key]) {
+          openUrl(BLOGS[key], q);
+          return;
+        }
+
+        // 3) Unknown: "I'm feeling lucky" search for the blog
+        println('> no local record of "' + q + '". asking the void ...');
+        var lucky = 'https://duckduckgo.com/?q=' + encodeURIComponent('!ducky ' + q + ' blog');
+        openUrl(lucky, q + ' (lucky search)');
+      }
+
+      function listBlogs() {
+        var seen = {};
+        var names = [];
+        Object.keys(BLOGS).forEach(function (k) {
+          var u = BLOGS[k];
+          if (!seen[u]) { seen[u] = true; names.push(k); }
+        });
+        println('> known blogs:\n  ' + names.join(', '));
+        println('> anything else gets a lucky search, or type a domain.');
+      }
+
+      /* ---------- Command handling ---------- */
+      var history = [];
+      var histIndex = 0;
+
+      function run(raw) {
+        var cmd = raw.trim();
+        println(PROMPT + raw);
+        if (!cmd) return;
+
+        history.push(cmd);
+        histIndex = history.length;
+
+        var lower = cmd.toLowerCase();
+        var parts = cmd.split(/\s+/);
+        var first = parts[0].toLowerCase();
+
+        if (lower === 'help' || lower === '?') {
+          println(
+            '> commands:\n' +
+            '  <blog name>     open a blog (e.g. krebs, schneier, 404media)\n' +
+            '  open <name|url> same thing, explicitly\n' +
+            '  list            show known blogs\n' +
+            '  summon          wake the ghost\n' +
+            '  clear           wipe the screen\n' +
+            '  help            this message'
+          );
+        } else if (lower === 'list' || lower === 'ls') {
+          listBlogs();
+        } else if (lower === 'clear' || lower === 'cls') {
+          out.textContent = '';
+        } else if (lower === 'summon') {
+          summon();
+        } else if (first === 'open' || first === 'cd' || first === 'goto') {
+          var rest = cmd.slice(parts[0].length).trim();
+          if (rest) openBlog(rest);
+          else println('> usage: open <blog name or url>');
+        } else {
+          openBlog(cmd);
+        }
+      }
+
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        if (typing) return;
+        var value = input.value;
+        input.value = '';
+        run(value);
+      });
+
+      input.addEventListener('keydown', function (e) {
+        if (e.key === 'ArrowUp') {
+          if (history.length && histIndex > 0) {
+            histIndex--;
+            input.value = history[histIndex];
+          }
+          e.preventDefault();
+        } else if (e.key === 'ArrowDown') {
+          if (histIndex < history.length - 1) {
+            histIndex++;
+            input.value = history[histIndex];
+          } else {
+            histIndex = history.length;
+            input.value = '';
+          }
+          e.preventDefault();
+        }
+      });
+
+      // Clicking anywhere on the terminal focuses the prompt
+      terminal.addEventListener('click', function (e) {
+        if (e.target.tagName !== 'BUTTON' && !input.disabled) input.focus();
       });
     })();
   </script>

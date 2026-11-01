@@ -189,6 +189,8 @@ html, body {
 .output {
   margin-top: 22px;
   min-height: 9.5em;
+  max-height: 16em;
+  overflow-y: auto;
   white-space: pre-wrap;
   word-break: break-word;
   font-family: inherit;
@@ -198,14 +200,37 @@ html, body {
   text-shadow: 0 0 5px rgba(0, 255, 65, 0.6);
 }
 
-.output::after {
-  content: "\2588";
-  margin-left: 2px;
-  animation: blink 1s steps(1) infinite;
+/* ---------- Command prompt ---------- */
+.prompt-line {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 4px;
 }
 
-@keyframes blink {
-  50% { opacity: 0; }
+.prompt {
+  flex: 0 0 auto;
+  color: var(--orange);
+  text-shadow: 0 0 6px rgba(255, 106, 0, 0.6);
+  font-size: 0.95rem;
+  white-space: nowrap;
+}
+
+#cmd {
+  flex: 1 1 auto;
+  min-width: 0;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--green);
+  caret-color: var(--green);
+  font-family: inherit;
+  font-size: 0.95rem;
+  text-shadow: 0 0 5px rgba(0, 255, 65, 0.6);
+}
+
+#cmd:disabled {
+  opacity: 0.4;
 }
 
 /* ---------- Buttons ---------- */
