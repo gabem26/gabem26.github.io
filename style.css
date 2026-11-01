@@ -1,20 +1,43 @@
+/* ============ COLORS ============
+   Change these three and the whole theme updates (dots, title, text, glows).
+   --g = main green, --o = orange, --r = red */
 :root { --g: #00ff41; --o: #ff6a00; --r: #ff1744; }
 
+/* ============ RESET ============
+   Removes default browser spacing so sizing is predictable. Leave as is. */
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
+/* ============ PAGE ============
+   background = page color behind the rain, color = default text color,
+   font-family = the font for everything, overflow hidden = no scrollbars */
 html, body { height: 100%; background: #000; color: var(--g); font-family: "Courier New", monospace; overflow: hidden; }
 
+/* ============ RAIN CANVAS ============
+   Stretches the rain across the whole screen, behind everything. */
 #rain { position: fixed; inset: 0; }
 
-/* overlays */
+/* ============ OVERLAYS ============
+   Two full-screen layers on top of the rain. pointer-events: none lets clicks pass through. */
 .vignette, .scanlines { position: fixed; inset: 0; pointer-events: none; }
+
+/* Vignette: dark red/black edges. Change the 6s to flicker faster/slower.
+   The rgba numbers set the edge color; the last number (.92) is how dark the corners get. */
 .vignette  { z-index: 1; animation: flicker 6s infinite;
   background: radial-gradient(ellipse at center, transparent 35%, rgba(20,0,0,.55) 75%, rgba(0,0,0,.92)); }
+
+/* Scanlines: thin dark horizontal lines. Raise .22 for darker lines, set to 0 to remove them. */
 .scanlines { z-index: 2; background: repeating-linear-gradient(transparent 0 2px, rgba(0,0,0,.22) 3px 4px); }
 
-/* layout */
+/* ============ PAGE LAYOUT ============
+   Centers the terminal window on the screen. padding = space around it. */
 main { position: relative; z-index: 3; min-height: 100%; display: grid; place-items: center; padding: 20px; }
 
+/* ============ TERMINAL WINDOW ============
+   width: 720px is the max width (change it to make the window wider/narrower)
+   background: the dark see-through panel (last number .78 = how see-through; lower shows more rain)
+   border / border-radius: outline color and rounded corners
+   box-shadow: the green and red glow around the window
+   backdrop-filter: slight blur of the rain behind the panel (set to none to remove) */
 .terminal {
   width: min(720px, 100%);
   background: rgba(0,10,3,.78);
@@ -25,50 +48,81 @@ main { position: relative; z-index: 3; min-height: 100%; display: grid; place-it
   overflow: hidden;
 }
 
+/* ============ TOP BAR ============
+   The strip across the top of the window (background color, spacing, bottom line) */
 .bar { display: flex; align-items: center; gap: 8px; padding: 10px 14px; background: rgba(0,40,10,.7); border-bottom: 1px solid #0b8f2a; }
+/* Dot size and shape */
 .bar i { width: 12px; height: 12px; border-radius: 50%; }
+/* Dot colors + glow (they use the colors from the top of this file) */
 .red   { background: var(--r); box-shadow: 0 0 8px var(--r); }
 .amber { background: var(--o); box-shadow: 0 0 8px var(--o); }
 .green { background: var(--g); box-shadow: 0 0 8px var(--g); }
+/* Small text in the top bar (the "1+0=10"): its size and color */
 .bar span { margin-left: 10px; font-size: .85rem; color: #0b8f2a; }
 
+/* ============ WINDOW CONTENT AREA ============
+   Space inside the window: top, left/right, bottom */
 .body { padding: 28px 26px 30px; }
 
-/* glitch title */
+/* ============ GLITCH TITLE ============
+   Main title: font-size (clamp = min, scales with screen, max), letter spacing, green glow,
+   and the slow flicker animation (the 4s is the speed). */
 h1 { position: relative; font-size: clamp(1.8rem, 6vw, 3.2rem); letter-spacing: .08em;
   text-shadow: 0 0 6px var(--g), 0 0 22px rgba(0,255,65,.6); animation: titleFlicker 4s infinite; }
+/* Both glitch copies sit exactly on top of the title and copy its text from data-text in the HTML */
 h1::before, h1::after { content: attr(data-text); position: absolute; left: 0; top: 0; width: 100%; overflow: hidden; text-shadow: none; }
+/* Red copy: only the top 45% shows, and it jolts sideways now and then (2.4s = how often) */
 h1::before { color: var(--r); clip-path: inset(0 0 55% 0); animation: glitchTop 2.4s infinite linear alternate-reverse; }
+/* Orange copy: only the bottom 45% shows, jolts on a different timing (3s) */
 h1::after  { color: var(--o); clip-path: inset(55% 0 0 0); animation: glitchBottom 3s infinite linear alternate-reverse; }
 
-/* output + prompt */
+/* ============ OUTPUT TEXT (the line above the prompt) ============
+   min-height / max-height: how tall the area is (it scrolls if text gets longer than max)
+   font-size: .95rem = text size. text-shadow is the green glow. */
 pre { margin-top: 22px; min-height: 9.5em; max-height: 16em; overflow-y: auto; font: inherit; font-size: .95rem; line-height: 1.6; white-space: pre-wrap; word-break: break-word; text-shadow: 0 0 5px rgba(0,255,65,.6); }
+
+/* ============ PROMPT LINE ============
+   The row that holds the orange label and the text box */
 .prompt { display: flex; align-items: center; gap: 10px; margin-top: 4px; }
+/* The orange "root@haunted-host:~#" text: size, color, glow */
 label { font-size: .95rem; color: var(--o); white-space: nowrap; text-shadow: 0 0 6px rgba(255,106,0,.6); }
+/* The box you type in: invisible background/border, green text, green blinking cursor (caret-color) */
 input { flex: 1; min-width: 0; background: none; border: 0; outline: 0; color: var(--g); caret-color: var(--g); font: inherit; font-size: .95rem; text-shadow: 0 0 5px rgba(0,255,65,.6); }
 
-/* pause button */
+/* ============ PAUSE BUTTON ============
+   .buttons = space above the button */
 .buttons { margin-top: 22px; }
+/* Normal look: green outline and text, glow, size (padding), and fade speed (transition) */
 button { font: inherit; font-size: .9rem; letter-spacing: .05em; color: var(--g); background: none; border: 1px solid var(--g); padding: 10px 16px; cursor: pointer;
   text-shadow: 0 0 6px rgba(0,255,65,.7); box-shadow: 0 0 10px rgba(0,255,65,.25); transition: .15s; }
+/* Hover / keyboard focus: fills solid green with black text */
 button:hover, button:focus-visible { outline: 0; background: var(--g); color: #000; text-shadow: none; box-shadow: 0 0 20px rgba(0,255,65,.8); }
 
-/* animations */
+/* ============ ANIMATIONS ============
+   Each one is a timeline: percentages = moments in the loop, the values = what changes.
+   How LONG a loop takes is set where it's used (the 2.4s, 3s, 4s, 6s above). */
+
+/* Red title copy: stays still, then jolts left/right near the end of each loop */
 @keyframes glitchTop {
   0%, 88%, 100% { transform: none; }
   90% { transform: translate(-4px, -1px); } 93% { transform: translate(3px, 1px); } 96% { transform: translate(-2px, 0); }
 }
+/* Orange title copy: same idea, different timing and direction */
 @keyframes glitchBottom {
   0%, 82%, 100% { transform: none; }
   85% { transform: translate(4px, 1px); } 90% { transform: translate(-3px, -1px); } 95% { transform: translate(2px, 0); }
 }
+/* Title: fades dim for a split second at 42% and 70% (opacity 1 = full, lower = dimmer) */
 @keyframes titleFlicker {
   0%, 41%, 43%, 71%, 100% { opacity: 1; }
   42% { opacity: .55; } 70% { opacity: .8; }
 }
+/* Vignette: brief dips in brightness at 48% and 82% */
 @keyframes flicker {
   0%, 47%, 50%, 83%, 100% { opacity: 1; }
   48% { opacity: .6; } 82% { opacity: .85; }
 }
 
+/* ============ PHONE / SMALL SCREENS ============
+   Applies only when the screen is 480px wide or less: tighter padding and smaller output text */
 @media (max-width: 480px) { .body { padding: 20px 16px 24px; } pre { font-size: .85rem; } }

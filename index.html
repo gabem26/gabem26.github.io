@@ -3,68 +3,105 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- BROWSER TAB TITLE: change the text between the title tags -->
 <title>BLOG</title>
+<!-- Loads all the styling from style.css (keep both files in the same folder) -->
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
+
+<!-- ============ BACKGROUND LAYERS (back to front) ============ -->
+<!-- 1. The canvas the falling 1s and 0s are drawn on (drawn by the script at the bottom) -->
 <canvas id="rain"></canvas>
+<!-- 2. Dark red/black edges that flicker (styled in the "overlays" part of style.css) -->
 <div class="vignette"></div>
+<!-- 3. Thin horizontal CRT lines over everything -->
 <div class="scanlines"></div>
 
+<!-- ============ TERMINAL WINDOW ============ -->
 <main>
   <section class="terminal">
+
+    <!-- Top bar: three colored dots + small text next to them -->
     <div class="bar">
+      <!-- The red, amber and green dots (colors set in style.css) -->
       <i class="red"></i><i class="amber"></i><i class="green"></i>
+      <!-- TOP BAR TEXT: change the text between the span tags -->
       <span>1+0=10</span>
     </div>
+
+    <!-- Everything inside the window under the top bar -->
     <div class="body">
+
+      <!-- BIG GLITCH TITLE: change the text in BOTH places (data-text and between the tags).
+           data-text is used for the red/orange glitch copies, so they must match. -->
       <h1 data-text="BLOG">BLOG</h1>
+
+      <!-- OUTPUT AREA: the text shown above the prompt. Edit the line, or add more lines.
+           (&gt; just shows a ">" character) -->
       <pre>&gt; type "help" for commands, or just type a blog name.</pre>
+
+      <!-- PROMPT LINE: orange label on the left + a text box you can type in.
+           Change the text between the label tags to change the prompt. -->
       <div class="prompt"><label>root@haunted-host:~#</label><input spellcheck="false"></div>
+
+      <!-- PAUSE BUTTON: change the label text here AND in the script below (2 places there) -->
       <div class="buttons"><button id="pause" type="button">[ PAUSE THE RAIN ]</button></div>
     </div>
   </section>
 </main>
 
 <script>
-/* Binary rain: falling 1s and 0s */
+/* ============ BINARY RAIN (falling 1s and 0s) ============ */
+
+/* Setup: finds the canvas, then sets the settings you can tweak:
+   size  = digit size in pixels (bigger = fewer, larger columns)
+   on    = true means the rain is running (false would start it paused)
+   Leave w, h, drops, speed alone; the script fills those in. */
 var cv = document.getElementById('rain'), ctx = cv.getContext('2d');
 var size = 18, w, h, drops = [], speed = [], on = true;
 
+/* Pause button: clicking flips the rain on/off and changes the button text.
+   Edit the two label strings here if you change the button text above. */
 var pb = document.getElementById('pause');
 pb.onclick = function () { on = !on; pb.textContent = on ? '[ PAUSE THE RAIN ]' : '[ RESUME THE RAIN ]'; };
 
+/* Resize: runs at load and when the window changes size. It makes the canvas fill
+   the screen and gives each new column a random starting height and speed.
+   speed = 0.5 + Math.random() means each column falls at 0.5 to 1.5 rows per tick. */
 function resize() {
   w = cv.width = innerWidth;
   h = cv.height = innerHeight;
   for (var i = drops.length; i < Math.ceil(w / size); i++) {
-    drops[i] = -Math.random() * 50;
-    speed[i] = 0.5 + Math.random();
+    drops[i] = -Math.random() * 50;     // start above the screen (bigger number = longer delay)
+    speed[i] = 0.5 + Math.random();     // fall speed for this column
   }
 }
 addEventListener('resize', resize);
 resize();
 
+/* Animation loop: runs every 45 ms. LOWER the 45 (last line) = faster rain, HIGHER = slower. */
 setInterval(function () {
-  if (!on) return;
-  ctx.fillStyle = 'rgba(0,0,0,0.09)';                 // fade = trail
+  if (!on) return;                                    // paused: do nothing
+  ctx.fillStyle = 'rgba(0,0,0,0.09)';                 // fade = trail (lower number = longer trails)
   ctx.fillRect(0, 0, w, h);
   ctx.font = 'bold ' + size + 'px monospace';
   ctx.textBaseline = 'top';
-  for (var i = 0; i < Math.ceil(w / size); i++) {
+  for (var i = 0; i < Math.ceil(w / size); i++) {     // one pass per column
     var x = i * size, y = drops[i] * size, r = Math.random();
+    /* Digit color: mostly green (#00ff41), sometimes orange (#ff6a00) or red (#ff1744) */
     var c = r > .985 ? '#ff6a00' : r > .972 ? '#ff1744' : '#00ff41';
-    ctx.fillStyle = '#d6ffe0';                        // bright head
+    ctx.fillStyle = '#d6ffe0';                        // bright head (the lead digit of each stream)
     ctx.shadowColor = c;
-    ctx.shadowBlur = 8;
-    ctx.fillText(Math.random() > .5 ? 1 : 0, x, y);
+    ctx.shadowBlur = 8;                               // glow size around the head
+    ctx.fillText(Math.random() > .5 ? 1 : 0, x, y);   // draws a random 1 or 0
     ctx.shadowBlur = 0;
     ctx.fillStyle = c;                                // colored digit behind it
     ctx.fillText(Math.random() > .5 ? 1 : 0, x, y - size);
-    if (y > h && Math.random() > .975) drops[i] = -Math.random() * 20;
-    drops[i] += speed[i];
+    if (y > h && Math.random() > .975) drops[i] = -Math.random() * 20;   // off the bottom: restart at the top
+    drops[i] += speed[i];                             // move down
   }
-}, 45);
+}, 45);   // <-- the 45 is the speed in milliseconds
 </script>
 </body>
 </html>
