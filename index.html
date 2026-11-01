@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NOVA — Build the Future</title>
+  <meta name="description" content="NOVA is a modern studio crafting fast, beautiful, future-ready digital products." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="bg-grid" aria-hidden="true"></div>
+  <div class="bg-glow glow-1" aria-hidden="true"></div>
+  <div class="bg-glow glow-2" aria-hidden="true"></div>
+
+  <!-- NAV -->
+  <header class="nav" id="nav">
+    <div class="container nav-inner">
+      <a href="#home" class="logo"><span class="logo-mark"></span>NOVA</a>
+      <nav class="nav-links" id="navLinks">
+        <a href="#features">Features</a>
+        <a href="#about">About</a>
+        <a href="#work">Work</a>
+        <a href="#contact">Contact</a>
+      </nav>
+      <a href="#contact" class="btn btn-sm btn-ghost nav-cta">Get in touch</a>
+      <button class="menu-btn" id="menuBtn" aria-label="Toggle menu" aria-expanded="false">
+        <span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <main>
+    <!-- HERO -->
+    <section class="hero" id="home">
+      <div class="container hero-inner">
+        <span class="badge reveal"><i class="dot"></i> Now accepting new projects</span>
+        <h1 class="reveal">Designing the <span class="gradient-text">next layer</span><br />of the internet.</h1>
+        <p class="lead reveal">We craft fast, elegant and intelligent digital products for ambitious teams — from first sketch to global launch.</p>
+        <div class="hero-actions reveal">
+          <a href="#work" class="btn btn-primary">View our work</a>
+          <a href="#features" class="btn btn-ghost">Explore services</a>
+        </div>
+
+        <div class="hero-stats reveal">
+          <div><strong data-count="120">0</strong><span>Projects shipped</span></div>
+          <div><strong data-count="48">0</strong><span>Happy clients</span></div>
+          <div><strong data-count="99">0</strong><span>% Uptime</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FEATURES -->
+    <section class="section" id="features">
+      <div class="container">
+        <div class="section-head reveal">
+          <span class="eyebrow">What we do</span>
+          <h2>Everything you need to <span class="gradient-text">launch</span></h2>
+          <p>A focused set of services, delivered with precision and polish.</p>
+        </div>
+
+        <div class="grid-3">
+          <article class="card reveal">
+            <div class="icon">◈</div>
+            <h3>Product Design</h3>
+            <p>Interfaces that feel effortless. Research-driven UX and crisp visual systems that scale.</p>
+          </article>
+          <article class="card reveal">
+            <div class="icon">⬡</div>
+            <h3>Web Engineering</h3>
+            <p>Blazing-fast, accessible and secure front-ends and back-ends built on modern stacks.</p>
+          </article>
+          <article class="card reveal">
+            <div class="icon">✦</div>
+            <h3>AI Integration</h3>
+            <p>Practical automation and intelligent features woven seamlessly into your product.</p>
+          </article>
+          <article class="card reveal">
+            <div class="icon">◐</div>
+            <h3>Brand Identity</h3>
+            <p>Distinctive identities, motion and guidelines that make you unmistakable.</p>
+          </article>
+          <article class="card reveal">
+            <div class="icon">▲</div>
+            <h3>Cloud &amp; DevOps</h3>
+            <p>Reliable infrastructure, CI/CD and monitoring so you can ship with confidence.</p>
+          </article>
+          <article class="card reveal">
+            <div class="icon">❖</div>
+            <h3>Growth &amp; SEO</h3>
+            <p>Performance, analytics and search strategy to turn visitors into customers.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ABOUT -->
+    <section class="section" id="about">
+      <div class="container about">
+        <div class="about-text reveal">
+          <span class="eyebrow">About us</span>
+          <h2>Small team. <span class="gradient-text">Big</span> impact.</h2>
+          <p>We're a tight-knit group of designers and engineers obsessed with craft. We partner closely with founders and teams, moving quickly without cutting corners.</p>
+          <ul class="checks">
+            <li>Transparent process and weekly demos</li>
+            <li>Senior-only talent on every project</li>
+            <li>Built for performance and accessibility</li>
+          </ul>
+          <a href="#contact" class="btn btn-primary">Work with us</a>
+        </div>
+
+        <div class="about-visual reveal" aria-hidden="true">
+          <div class="orb"></div>
+          <div class="glass-panel panel-a"><small>Latency</small><b>12ms</b></div>
+          <div class="glass-panel panel-b"><small>Lighthouse</small><b>100</b></div>
+          <div class="glass-panel panel-c"><small>Deploys / day</small><b>24</b></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- WORK -->
+    <section class="section" id="work">
+      <div class="container">
+        <div class="section-head reveal">
+          <span class="eyebrow">Selected work</span>
+          <h2>Recent <span class="gradient-text">projects</span></h2>
+          <p>A glimpse of what we've been building lately.</p>
+        </div>
+
+        <div class="grid-3">
+          <a href="#" class="project reveal">
+            <div class="thumb t1"></div>
+            <div class="project-body"><h3>Aurora Dashboard</h3><span>SaaS · Analytics</span></div>
+          </a>
+          <a href="#" class="project reveal">
+            <div class="thumb t2"></div>
+            <div class="project-body"><h3>Helix Mobile</h3><span>Fintech · iOS &amp; Android</span></div>
+          </a>
+          <a href="#" class="project reveal">
+            <div class="thumb t3"></div>
+            <div class="project-body"><h3>Orbit Commerce</h3><span>E-commerce · Web</span></div>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA / CONTACT -->
+    <section class="section" id="contact">
+      <div class="container">
+        <div class="cta reveal">
+          <h2>Ready to build something <span class="gradient-text">remarkable?</span></h2>
+          <p>Tell us about your idea. We'll get back within one business day.</p>
+
+          <form class="form" onsubmit="event.preventDefault(); this.querySelector('button').textContent='Message sent ✓';">
+            <div class="row">
+              <input type="text" placeholder="Your name" required aria-label="Your name" />
+              <input type="email" placeholder="Email address" required aria-label="Email address" />
+            </div>
+            <textarea rows="4" placeholder="Tell us about your project" required aria-label="Project details"></textarea>
+            <button type="submit" class="btn btn-primary">Send message</button>
+          </form>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container footer-inner">
+      <a href="#home" class="logo"><span class="logo-mark"></span>NOVA</a>
+      <p>© <span id="year"></span> NOVA Studio. All rights reserved.</p>
+      <div class="socials">
+        <a href="#">Twitter</a>
+        <a href="#">GitHub</a>
+        <a href="#">LinkedIn</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Year
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    // Mobile menu
+    const menuBtn = document.getElementById('menuBtn');
+    const navLinks = document.getElementById('navLinks');
+    menuBtn.addEventListener('click', () => {
+      const open = navLinks.classList.toggle('open');
+      menuBtn.classList.toggle('active', open);
+      menuBtn.setAttribute('aria-expanded', open);
+    });
+    navLinks.querySelectorAll('a').forEach(a => a.addEventListener('click', () => {
+      navLinks.classList.remove('open');
+      menuBtn.classList.remove('active');
+      menuBtn.setAttribute('aria-expanded', false);
+    }));
+
+    // Nav shadow on scroll
+    const nav = document.getElementById('nav');
+    const onScroll = () => nav.classList.toggle('scrolled', window.scrollY > 20);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+
+    // Reveal on scroll
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) { e.target.classList.add('visible'); io.unobserve(e.target); }
+      });
+    }, { threshold: 0.15 });
+    document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+    // Count-up stats
+    const counters = document.querySelectorAll('[data-count]');
+    const co = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (!e.isIntersecting) return;
+        const el = e.target, target = +el.dataset.count, dur = 1400, start = performance.now();
+        const tick = (now) => {
+          const p = Math.min((now - start) / dur, 1);
+          el.textContent = Math.floor(target * (1 - Math.pow(1 - p, 3)));
+          if (p < 1) requestAnimationFrame(tick); else el.textContent = target;
+        };
+        requestAnimationFrame(tick);
+        co.unobserve(el);
+      });
+    }, { threshold: 0.6 });
+    counters.forEach(c => co.observe(c));
+
+    // Subtle cursor glow
+    const glow = document.querySelector('.glow-1');
+    window.addEventListener('pointermove', (e) => {
+      glow.style.transform = `translate(${e.clientX * 0.03}px, ${e.clientY * 0.03}px)`;
+    }, { passive: true });
+  </script>
+</body>
+</html>
